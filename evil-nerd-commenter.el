@@ -247,7 +247,8 @@
         ))))
 
 (defun evilnc--working-on-region (beg end fn)
-  (let (info
+  (let (pos
+        info
         lang
         lang-f
         old-flag)
@@ -271,11 +272,17 @@
 
     ;; turn off  3rd party language's major-mode temporarily and clean the shit
     (when lang-f
-      (setq old-flag org-inhibit-startup-visibility-stuff)
       ;; avoid org file automatically collapsed
-      (setq org-inhibit-startup-visibility-stuff t)
+      (setq pos (point))
       (org-mode)
-      (setq org-inhibit-startup-visibility-stuff old-flag))
+      ;; just goto the root element
+      (condition-case nil
+          (outline-up-heading 1)
+        (error
+       (message "in the beginning ...")))
+      ;; expand current node because by default (org-mode) will collapse all nodes
+      (org-show-subtree)
+      (goto-char pos))
     ))
 
 (defun evilnc--comment-or-uncomment-region (beg end)
